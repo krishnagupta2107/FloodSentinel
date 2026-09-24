@@ -15,28 +15,40 @@ venv/
 env/
 ENV/
 
-# ── Dataset Images & Labels (large files) ─────
-Yolo Dataset/train/images/
-Yolo Dataset/train/labels/
-Yolo Dataset/valid/images/
-Yolo Dataset/valid/labels/
-Yolo Dataset/test/images/
-Yolo Dataset/test/labels/
-
-# ── COCO JSON annotations (raw, large) ────────
+# ── Dataset (images, labels, annotations) ─────
+Yolo Dataset/train/
+Yolo Dataset/valid/
+Yolo Dataset/test/
 Yolo Dataset/**/_annotations.coco.json
 
-# ── Cache files ───────────────────────────────
+# ── YOLO cache files ──────────────────────────
 *.cache
-Yolo Dataset/**/*.cache
 
-# ── YOLO runs - keep v2 weights & results, ignore rest ──
+# ── YOLO auto-generated training artifacts ────
+# (batch previews, curves, confusion matrices, etc.)
+runs/**/train_batch*.jpg
+runs/**/val_batch*.jpg
+runs/**/Box*_curve.png
+runs/**/confusion_matrix*.png
+runs/**/labels.jpg
+runs/**/results.png
+runs/**/args.yaml
+runs/**/weights/last.pt
+
+# ── Old/broken training runs ──────────────────
 runs/detect/flood_sentinels_v1/
+runs/detect/train/
+runs/detect/train-2/
+runs/detect/train-3/
+runs/detect/val/
 runs/detect/val-*/
 runs/detect/predict/
-runs/detect/**/weights/last.pt
+runs/detect/predictions_v3_test/
 
-# ── Presentation & PDF (optional, large) ──────
+# ── Stray model files ─────────────────────────
+weights/
+
+# ── Presentation & PDF ────────────────────────
 *.pptx
 *.pdf
 
@@ -52,3 +64,4 @@ Thumbs.db
 # ── Misc ──────────────────────────────────────
 *.log
 .env
+COMMANDS.txt
