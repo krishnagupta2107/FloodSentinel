@@ -1,0 +1,15 @@
+﻿path: c:/Users/Lenovo/OneDrive/Desktop/Flood Sentinals/Yolo Dataset
+
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 2
+names: [Defects, Sewage blockage]
+
+roboflow:
+  workspace: krishna-gupta-v9ctt
+  project: storm-drain-model-cjhye-3oypn
+  version: 1
+  license: CC BY 4.0
+  url: https://app.roboflow.com/krishna-gupta-v9ctt/storm-drain-model-cjhye-3oypn/1
