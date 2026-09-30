@@ -1,4 +1,4 @@
-﻿import pandas as pd
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from pathlib import Path
@@ -31,7 +31,7 @@ def style(ax, title, ylabel=""):
 
 plt.style.use("dark_background")
 
-# Figure 1: Loss Curves
+# Pehla figure: Loss curves ke liye
 fig1, axes = plt.subplots(1, 3, figsize=(18, 5))
 fig1.patch.set_facecolor("#1A1A2E")
 fig1.suptitle("Training vs Validation Loss", fontsize=16, fontweight="bold", color="white", y=1.02)
@@ -50,7 +50,7 @@ out1 = OUT_DIR / "loss_curves.png"
 fig1.savefig(out1, dpi=150, bbox_inches="tight", facecolor=fig1.get_facecolor())
 print("Saved:", out1)
 
-# Figure 2: Accuracy
+# Doosra figure: Accuracy metrics dikhane ke liye
 fig2, axes2 = plt.subplots(1, 3, figsize=(18, 5))
 fig2.patch.set_facecolor("#1A1A2E")
 fig2.suptitle("Model Accuracy Metrics", fontsize=16, fontweight="bold", color="white", y=1.02)
@@ -70,7 +70,7 @@ out2 = OUT_DIR / "accuracy_metrics.png"
 fig2.savefig(out2, dpi=150, bbox_inches="tight", facecolor=fig2.get_facecolor())
 print("Saved:", out2)
 
-# Figure 3: Dashboard
+# Teesra figure: Pura training dashboard
 fig3 = plt.figure(figsize=(20, 10))
 fig3.patch.set_facecolor("#0F0F23")
 fig3.suptitle("Flood Sentinels - YOLOv8 Training Dashboard", fontsize=18, fontweight="bold", color="white", y=0.98)

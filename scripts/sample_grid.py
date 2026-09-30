@@ -1,5 +1,5 @@
-﻿"""
-Creates a visual grid of 12 sample prediction images for inspection.
+"""
+Visual grid banayenge 12 sample predictions ka, check karne ke liye.
 """
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg

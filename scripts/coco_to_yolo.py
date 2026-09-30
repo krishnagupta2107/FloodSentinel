@@ -1,9 +1,6 @@
-﻿"""
-COCO to YOLO Annotation Converter
-Converts _annotations.coco.json in each split (train/valid/test)
-into per-image YOLO .txt label files.
-YOLO format per line: class_id  cx  cy  w  h  (all normalized 0-1)
-Also fixes data.yaml with correct nc and class names.
+"""
+COCO se YOLO Annotation convert karne ka script
+Har split ke liye JSON ko .txt me convert karega.
 """
 
 import json
@@ -19,6 +16,7 @@ def convert_split(split):
     coco_json  = split_dir / "_annotations.coco.json"
     labels_dir = split_dir / "labels"
 
+    # Agar COCO JSON nahi mila toh skip karo
     if not coco_json.exists():
         print(f"  WARNING: No COCO JSON found for {split}, skipping.")
         return {}
@@ -106,9 +104,7 @@ def verify_labels(split, n=2):
 
 
 def main():
-    print("=" * 60)
-    print("  COCO to YOLO Annotation Converter")
-    print("=" * 60)
+    print("\n  COCO to YOLO Annotation Converter\n")
 
     all_class_names = []
 
@@ -137,9 +133,7 @@ def main():
         if labels_dir.exists():
             verify_labels(split, n=2)
 
-    print("\n" + "=" * 60)
-    print("  Conversion complete!")
-    print("=" * 60)
+    print("\n  Conversion complete!\n")
 
 
 if __name__ == "__main__":
