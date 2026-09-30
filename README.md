@@ -1,4 +1,4 @@
-﻿# Flood Sentinels - Storm Drain Blockage Detection
+# Flood Sentinels - Storm Drain Blockage Detection
 
 An AI-powered flood prevention system that uses **YOLOv8 object detection** to identify sewage blockages and defects in storm drain CCTV footage, enabling early intervention before flood events occur.
 
@@ -37,7 +37,10 @@ Flood Sentinels/
 ├── COMMANDS.txt                       # All commands reference
 ├── scripts/
 │   ├── coco_to_yolo.py               # Converts COCO JSON labels to YOLO format
-│   └── plot_results.py               # Generates training loss & accuracy graphs
+│   ├── estimate_occlusion.py         # Estimates blockage occlusion percentage
+│   ├── plot_results.py               # Generates training loss & accuracy graphs
+│   ├── sample_grid.py                # Creates visual grid of predictions
+│   └── test_occlusion_batch.py       # Batch tests occlusion on test dataset
 ├── Yolo Dataset/
 │   ├── data.yaml                     # Dataset config (nc=2, classes)
 │   ├── train/images/                 # Training images
@@ -121,6 +124,15 @@ yolo detect predict model=runs/detect/flood_sentinels_v2/weights/best.pt source=
 ### 6. Generate Training Graphs
 ```bash
 python scripts/plot_results.py
+```
+
+### 7. Estimate Blockage Occlusion
+```bash
+# On a single image
+python scripts/estimate_occlusion.py "path/to/image.jpg"
+
+# Batch test on all test images
+python scripts/test_occlusion_batch.py
 ```
 
 ---
