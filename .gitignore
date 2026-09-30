@@ -65,3 +65,28 @@ Thumbs.db
 *.log
 .env
 COMMANDS.txt
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables / secrets
+.env
+
+# Large datasets
+data/raw/
+data/processed/
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.log
