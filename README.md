@@ -4,7 +4,32 @@ An AI-powered flood prevention system that uses **YOLOv8 object detection** to i
 
 ---
 
-## Project Overview
+## 🌍 Project Overview
+
+Dense urban centers frequently experience sudden, severe flash flooding during heavy monsoon rains, often caused by unobserved trash and debris blockages in underground storm drainage networks. Current municipal drainage inspection is largely manual and reactive.
+
+**Flood Sentinels** is an AI-powered urban drainage blockage detection and flash-flood early warning platform. It acts as a proactive decision-support system that unifies computer vision, sensor data, and geographic information to prioritize drainage maintenance *before* flooding occurs.
+
+### 🚀 Key Modules (Full Pipeline)
+1. **Debris & Blockage Detection (Computer Vision)**
+   - Utilizes a fine-tuned **YOLOv8** model to process street-level or CCTV imagery of catch basins.
+   - Detects the presence of sewage blockages and calculates the **Occlusion Percentage** (severity) of the drain grate.
+   
+2. **Overflow-Risk Prediction (Time-Series & Sensors)**
+   - Fuses environmental data (public rainfall time-series) with underground water-level sensor telemetry.
+   - Uses predictive machine learning to estimate the likelihood and timeframe of a drain overflow ahead of the observed rise.
+
+3. **Risk Scoring & Prioritisation Module**
+   - Synthesizes the visual blockage severity (from the CV model) and the predicted overflow risk (from the sensor model) alongside location vulnerability data.
+   - Generates a ranked, unified **Risk Score (0-1)** for multiple drainage sites.
+
+4. **Map-Based Alert Dashboard**
+   - A frontend interface designed for municipal maintenance supervisors and emergency response coordinators.
+   - Visualizes all monitored catch basins on an interactive map, color-coded by risk level, allowing crews to dispatch resources to the most critical locations first.
+
+---
+
+## 🧠 Detection Model Specs
 
 | Property | Detail |
 |----------|--------|
