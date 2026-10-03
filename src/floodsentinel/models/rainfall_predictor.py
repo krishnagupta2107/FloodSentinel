@@ -1,8 +1,9 @@
 import os
+
 import joblib
 import numpy as np
-from xgboost import XGBRegressor
 from tensorflow.keras.models import load_model
+from xgboost import XGBRegressor
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 
