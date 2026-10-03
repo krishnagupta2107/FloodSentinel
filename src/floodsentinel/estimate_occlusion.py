@@ -6,7 +6,6 @@ import numpy as np
 from ultralytics import YOLO
 
 
-
 def calculate_occlusion(image_path, model=None, model_path=None):
     """
     Estimates the occlusion percentage of a storm drain catch basin.

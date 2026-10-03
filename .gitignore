@@ -15,6 +15,9 @@ venv/
 env/
 ENV/
 
+# ── Rainfall model data ──────────────────────
+rainfall_lstm_xgboost/
+
 # ── Dataset (images, labels, annotations) ─────
 Yolo Dataset/train/
 Yolo Dataset/valid/

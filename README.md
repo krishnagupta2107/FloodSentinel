@@ -61,9 +61,22 @@ pip install -r requirements.txt
 python src/floodsentinel/estimate_occlusion.py "path/to/drain.jpg"
 ```
 
-### Train Model
+### Train YOLO Model
 ```bash
 python src/floodsentinel/train.py --size m --epochs 50
+```
+
+### Predict Rainfall (LSTM + XGBoost)
+```python
+from src.floodsentinel.models.rainfall_predictor import RainfallPredictor
+
+predictor = RainfallPredictor()
+result = predictor.predict(
+    previous_12_months=[120, 90, 55, 30, 15, 200, 350, 300, 250, 180, 100, 60],
+    subdivision="EAST UTTAR PRADESH",
+    target_month=7
+)
+print(result)
 ```
 
 ---
@@ -85,7 +98,7 @@ python src/floodsentinel/train.py --size m --epochs 50
 - [x] YOLOv8 baseline (Nano) — mAP 0.689
 - [x] Occlusion % estimation
 - [x] YOLOv8m optimized model
-- [ ] LSTM / XGBoost overflow-risk model
+- [x] LSTM / XGBoost overflow-risk model
 - [ ] FastAPI backend
 - [ ] React + Leaflet dashboard
 - [ ] End-to-end pipeline demo
@@ -97,14 +110,21 @@ python src/floodsentinel/train.py --size m --epochs 50
 ```
 FloodSentinel/
 ├── src/floodsentinel/
-│   ├── estimate_occlusion.py   # Occlusion % from YOLO detections
-│   ├── train.py                # YOLOv8 training script (GPU, augmentations)
-│   ├── batch_inference.py      # Run model on full test set
-│   └── plot_results.py         # Visualise detections
-├── Yolo Dataset/               # Train/valid/test images + labels
-├── configs/                    # Training config YAML
-├── tests/                      # Unit tests (pytest)
-└── .github/workflows/ci.yml    # Lint CI (ruff + black)
+│   ├── estimate_occlusion.py        # Occlusion % from YOLO detections
+│   ├── train.py                     # YOLOv8 training script (GPU, augmentations)
+│   ├── batch_inference.py           # Run model on full test set
+│   ├── plot_results.py              # Visualise detections
+│   └── models/
+│       └── rainfall_predictor.py    # LSTM + XGBoost rainfall forecasting
+├── models/                          # Saved model weights & scalers
+│   ├── rainfall_lstm.keras
+│   ├── rainfall_xgboost.json
+│   └── *.pkl                        # Scalers & encoders
+├── rainfall_lstm_xgboost/           # Rainfall training data (gitignored)
+├── Yolo Dataset/                    # Train/valid/test images + labels
+├── configs/                         # Training config YAML
+├── tests/                           # Unit tests (pytest)
+└── .github/workflows/ci.yml         # Lint CI (ruff + black)
 ```
 
 ---
