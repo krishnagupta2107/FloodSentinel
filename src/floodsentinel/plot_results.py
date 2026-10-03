@@ -1,10 +1,17 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from pathlib import Path
 import sys
+from pathlib import Path
 
-RESULTS_CSV = Path(__file__).resolve().parent.parent.parent / "runs" / "detect" / "flood_sentinels_v3" / "results.csv"
+import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib import gridspec
+
+RESULTS_CSV = (
+    Path(__file__).resolve().parent.parent.parent
+    / "runs"
+    / "detect"
+    / "flood_sentinels_v3"
+    / "results.csv"
+)
 OUT_DIR = RESULTS_CSV.parent
 
 if not RESULTS_CSV.exists():
@@ -16,8 +23,13 @@ df.columns = df.columns.str.strip()
 print("Columns:", list(df.columns))
 epochs = df["epoch"] + 1
 
-TC = "#00D4FF"; VC = "#FF6B6B"; M50 = "#FFD93D"
-M95 = "#6BCB77"; PC = "#FF922B"; RC = "#CC5DE8"
+TC = "#00D4FF"
+VC = "#FF6B6B"
+M50 = "#FFD93D"
+M95 = "#6BCB77"
+PC = "#FF922B"
+RC = "#CC5DE8"
+
 
 def style(ax, title, ylabel=""):
     ax.set_title(title, fontsize=13, fontweight="bold", pad=10)
@@ -29,21 +41,26 @@ def style(ax, title, ylabel=""):
     for sp in ax.spines.values():
         sp.set_edgecolor("#444444")
 
+
 plt.style.use("dark_background")
 
 # Pehla figure: Loss curves ke liye
 fig1, axes = plt.subplots(1, 3, figsize=(18, 5))
 fig1.patch.set_facecolor("#1A1A2E")
-fig1.suptitle("Training vs Validation Loss", fontsize=16, fontweight="bold", color="white", y=1.02)
+fig1.suptitle(
+    "Training vs Validation Loss", fontsize=16, fontweight="bold", color="white", y=1.02
+)
 loss_pairs = [
-    ("train/box_loss","val/box_loss","Box Loss"),
-    ("train/cls_loss","val/cls_loss","Class Loss"),
-    ("train/dfl_loss","val/dfl_loss","DFL Loss"),
+    ("train/box_loss", "val/box_loss", "Box Loss"),
+    ("train/cls_loss", "val/cls_loss", "Class Loss"),
+    ("train/dfl_loss", "val/dfl_loss", "DFL Loss"),
 ]
-for ax,(tc,vc,title) in zip(axes, loss_pairs):
+for ax, (tc, vc, title) in zip(axes, loss_pairs):
     ax.set_facecolor("#16213E")
-    if tc in df.columns: ax.plot(epochs, df[tc], color=TC, lw=2, label="Train", marker="o", ms=3)
-    if vc in df.columns: ax.plot(epochs, df[vc], color=VC, lw=2, label="Val",   marker="s", ms=3, ls="--")
+    if tc in df.columns:
+        ax.plot(epochs, df[tc], color=TC, lw=2, label="Train", marker="o", ms=3)
+    if vc in df.columns:
+        ax.plot(epochs, df[vc], color=VC, lw=2, label="Val", marker="s", ms=3, ls="--")
     style(ax, title, "Loss")
 fig1.tight_layout()
 out1 = OUT_DIR / "loss_curves.png"
@@ -53,16 +70,28 @@ print("Saved:", out1)
 # Doosra figure: Accuracy metrics dikhane ke liye
 fig2, axes2 = plt.subplots(1, 3, figsize=(18, 5))
 fig2.patch.set_facecolor("#1A1A2E")
-fig2.suptitle("Model Accuracy Metrics", fontsize=16, fontweight="bold", color="white", y=1.02)
+fig2.suptitle(
+    "Model Accuracy Metrics", fontsize=16, fontweight="bold", color="white", y=1.02
+)
 cols_map = [
-    ("metrics/mAP50(B)","metrics/mAP50-95(B)","mAP@0.5 vs mAP@0.5:0.95",M50,M95,"mAP@0.5","mAP@0.5:0.95"),
-    ("metrics/precision(B)",None,"Precision",PC,None,"Precision",None),
-    ("metrics/recall(B)",None,"Recall",RC,None,"Recall",None),
+    (
+        "metrics/mAP50(B)",
+        "metrics/mAP50-95(B)",
+        "mAP@0.5 vs mAP@0.5:0.95",
+        M50,
+        M95,
+        "mAP@0.5",
+        "mAP@0.5:0.95",
+    ),
+    ("metrics/precision(B)", None, "Precision", PC, None, "Precision", None),
+    ("metrics/recall(B)", None, "Recall", RC, None, "Recall", None),
 ]
-for ax,(c1,c2,title,col1,col2,l1,l2) in zip(axes2, cols_map):
+for ax, (c1, c2, title, col1, col2, l1, l2) in zip(axes2, cols_map):
     ax.set_facecolor("#16213E")
-    if c1 in df.columns: ax.plot(epochs, df[c1], color=col1, lw=2, label=l1, marker="o", ms=3)
-    if c2 and c2 in df.columns: ax.plot(epochs, df[c2], color=col2, lw=2, label=l2, marker="s", ms=3, ls="--")
+    if c1 in df.columns:
+        ax.plot(epochs, df[c1], color=col1, lw=2, label=l1, marker="o", ms=3)
+    if c2 and c2 in df.columns:
+        ax.plot(epochs, df[c2], color=col2, lw=2, label=l2, marker="s", ms=3, ls="--")
     style(ax, title, "Score")
     ax.set_ylim(0, 1.05)
 fig2.tight_layout()
@@ -73,25 +102,47 @@ print("Saved:", out2)
 # Teesra figure: Pura training dashboard
 fig3 = plt.figure(figsize=(20, 10))
 fig3.patch.set_facecolor("#0F0F23")
-fig3.suptitle("Flood Sentinels - YOLOv8 Training Dashboard", fontsize=18, fontweight="bold", color="white", y=0.98)
+fig3.suptitle(
+    "Flood Sentinels - YOLOv8 Training Dashboard",
+    fontsize=18,
+    fontweight="bold",
+    color="white",
+    y=0.98,
+)
 gs = gridspec.GridSpec(2, 4, figure=fig3, hspace=0.45, wspace=0.4)
 panels = [
-    (gs[0,0],"train/box_loss","val/box_loss","Box Loss",TC,VC,"Train","Val"),
-    (gs[0,1],"train/cls_loss","val/cls_loss","Cls Loss",TC,VC,"Train","Val"),
-    (gs[0,2],"train/dfl_loss","val/dfl_loss","DFL Loss",TC,VC,"Train","Val"),
-    (gs[0,3],"metrics/mAP50(B)","metrics/mAP50-95(B)","mAP",M50,M95,"mAP@0.5","mAP@0.5:0.95"),
-    (gs[1,0],"metrics/precision(B)",None,"Precision",PC,None,"Precision",None),
-    (gs[1,1],"metrics/recall(B)",None,"Recall",RC,None,"Recall",None),
+    (gs[0, 0], "train/box_loss", "val/box_loss", "Box Loss", TC, VC, "Train", "Val"),
+    (gs[0, 1], "train/cls_loss", "val/cls_loss", "Cls Loss", TC, VC, "Train", "Val"),
+    (gs[0, 2], "train/dfl_loss", "val/dfl_loss", "DFL Loss", TC, VC, "Train", "Val"),
+    (
+        gs[0, 3],
+        "metrics/mAP50(B)",
+        "metrics/mAP50-95(B)",
+        "mAP",
+        M50,
+        M95,
+        "mAP@0.5",
+        "mAP@0.5:0.95",
+    ),
+    (gs[1, 0], "metrics/precision(B)", None, "Precision", PC, None, "Precision", None),
+    (gs[1, 1], "metrics/recall(B)", None, "Recall", RC, None, "Recall", None),
 ]
-for spec,c1,c2,title,col1,col2,l1,l2 in panels:
+for spec, c1, c2, title, col1, col2, l1, l2 in panels:
     ax = fig3.add_subplot(spec)
     ax.set_facecolor("#16213E")
-    if c1 in df.columns: ax.plot(epochs, df[c1], color=col1, lw=2, label=l1, marker="o", ms=2)
-    if c2 and c2 in df.columns: ax.plot(epochs, df[c2], color=col2, lw=2, label=l2, marker="s", ms=2, ls="--")
+    if c1 in df.columns:
+        ax.plot(epochs, df[c1], color=col1, lw=2, label=l1, marker="o", ms=2)
+    if c2 and c2 in df.columns:
+        ax.plot(epochs, df[c2], color=col2, lw=2, label=l2, marker="s", ms=2, ls="--")
     style(ax, title)
 
 last = df.iloc[-1]
-def safe(c): return f"{last[c]:.4f}" if c in df.columns else "N/A"
+
+
+def safe(c):
+    return f"{last[c]:.4f}" if c in df.columns else "N/A"
+
+
 ax_t = fig3.add_subplot(gs[1, 2:])
 ax_t.set_facecolor("#0D1B2A")
 ax_t.axis("off")
@@ -110,9 +161,22 @@ lines = [
     f"  Precision       : {safe('metrics/precision(B)')}",
     f"  Recall          : {safe('metrics/recall(B)')}",
 ]
-ax_t.text(0.05, 0.95, "\n".join(lines), transform=ax_t.transAxes,
-          fontsize=11, va="top", fontfamily="monospace", color="#E0E0E0",
-          bbox=dict(boxstyle="round,pad=0.8", facecolor="#1A2744", edgecolor="#3A5A8A", lw=1.5))
+ax_t.text(
+    0.05,
+    0.95,
+    "\n".join(lines),
+    transform=ax_t.transAxes,
+    fontsize=11,
+    va="top",
+    fontfamily="monospace",
+    color="#E0E0E0",
+    bbox={
+        "boxstyle": "round,pad=0.8",
+        "facecolor": "#1A2744",
+        "edgecolor": "#3A5A8A",
+        "lw": 1.5,
+    },
+)
 
 out3 = OUT_DIR / "training_dashboard.png"
 fig3.savefig(out3, dpi=150, bbox_inches="tight", facecolor=fig3.get_facecolor())

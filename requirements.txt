@@ -1,6 +1,6 @@
-ultralytics==8.1.0
-torch==2.2.0
-opencv-python==4.9.0.80
+ultralytics>=8.0.0
+torch>=2.0.0
+opencv-python>=4.8.0
 numpy==2.4.6
 pandas==2.2.3
 xgboost>=2.0.0

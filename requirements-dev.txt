@@ -1,6 +1,4 @@
-jupyter==1.1.1
-jupyterlab==4.6.4
-notebook==7.6.3
+
 pytest>=7.0
 ruff>=0.16
 black>=23.9
