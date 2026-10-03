@@ -1,6 +1,3 @@
-from unittest.mock import MagicMock
-import numpy as np
-
 from src.floodsentinel.estimate_occlusion import calculate_occlusion
 
 
@@ -45,7 +42,7 @@ def test_calculate_occlusion_partial_blockage():
     """Test occlusion calculation with a blockage taking up part of the grate"""
     boxes = [
         MockBox(cls_id=0, xyxy=[0, 0, 100, 100]),  # Grate (Defect bounding box)
-        MockBox(cls_id=1, xyxy=[0, 0, 50, 50]),    # Blockage covering 1/4th of the area
+        MockBox(cls_id=1, xyxy=[0, 0, 50, 50]),  # Blockage covering 1/4th of the area
     ]
     mock_model = MockModel(MockResult(boxes=boxes))
 
@@ -72,13 +69,13 @@ def test_calculate_occlusion_overlapping_blockages():
     """Test multiple overlapping blockages. Area should be calculated correctly without double counting."""
     boxes = [
         MockBox(cls_id=0, xyxy=[0, 0, 100, 100]),
-        MockBox(cls_id=1, xyxy=[0, 0, 50, 50]),    # 2500 pixels
+        MockBox(cls_id=1, xyxy=[0, 0, 50, 50]),  # 2500 pixels
         MockBox(cls_id=1, xyxy=[25, 25, 75, 75]),  # 2500 pixels, but overlaps!
     ]
     mock_model = MockModel(MockResult(boxes=boxes))
 
     pct, _ = calculate_occlusion("fake_path.jpg", model=mock_model)
-    # The mask union of [0,0,50,50] and [25,25,75,75] 
+    # The mask union of [0,0,50,50] and [25,25,75,75]
     # Total mask area = (50*50) + (50*50) - (25*25) = 2500 + 2500 - 625 = 4375
     # Grate area = 10000
     assert pct == 43.75
