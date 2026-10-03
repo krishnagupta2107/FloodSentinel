@@ -12,8 +12,8 @@ DATA_YAML = DATASET_ROOT / "data.yaml"
 
 
 def convert_split(split):
-    split_dir  = DATASET_ROOT / split
-    coco_json  = split_dir / "_annotations.coco.json"
+    split_dir = DATASET_ROOT / split
+    coco_json = split_dir / "_annotations.coco.json"
     labels_dir = split_dir / "labels"
 
     # Agar COCO JSON nahi mila toh skip karo
@@ -26,21 +26,21 @@ def convert_split(split):
     with open(coco_json, "r") as f:
         coco = json.load(f)
 
-    categories    = sorted(coco["categories"], key=lambda c: c["id"])
+    categories = sorted(coco["categories"], key=lambda c: c["id"])
     cat_id_to_idx = {cat["id"]: idx for idx, cat in enumerate(categories)}
-    class_names   = [cat["name"] for cat in categories]
+    class_names = [cat["name"] for cat in categories]
 
     ann_by_image = {}
     for ann in coco["annotations"]:
         ann_by_image.setdefault(ann["image_id"], []).append(ann)
 
     written = 0
-    empty   = 0
+    empty = 0
 
     for img_info in coco["images"]:
-        img_id   = img_info["id"]
-        img_w    = img_info["width"]
-        img_h    = img_info["height"]
+        img_id = img_info["id"]
+        img_w = img_info["width"]
+        img_h = img_info["height"]
         img_stem = Path(img_info["file_name"]).stem
         txt_path = labels_dir / f"{img_stem}.txt"
 
@@ -54,7 +54,7 @@ def convert_split(split):
         lines = []
         for ann in annotations:
             x, y, w, h = ann["bbox"]
-            class_idx  = cat_id_to_idx[ann["category_id"]]
+            class_idx = cat_id_to_idx[ann["category_id"]]
 
             cx = (x + w / 2.0) / img_w
             cy = (y + h / 2.0) / img_h
@@ -71,11 +71,16 @@ def convert_split(split):
         txt_path.write_text("\n".join(lines) + "\n")
         written += 1
 
-    return {"class_names": class_names, "total": len(coco["images"]), "written": written, "empty": empty}
+    return {
+        "class_names": class_names,
+        "total": len(coco["images"]),
+        "written": written,
+        "empty": empty,
+    }
 
 
 def fix_data_yaml(class_names):
-    names_str    = "[" + ", ".join(class_names) + "]"
+    names_str = "[" + ", ".join(class_names) + "]"
     yaml_content = (
         "train: ../train/images\n"
         "val: ../valid/images\n"
@@ -95,7 +100,7 @@ def fix_data_yaml(class_names):
 
 def verify_labels(split, n=2):
     labels_dir = DATASET_ROOT / split / "labels"
-    non_empty  = [f for f in labels_dir.glob("*.txt") if f.stat().st_size > 0]
+    non_empty = [f for f in labels_dir.glob("*.txt") if f.stat().st_size > 0]
     print(f"\n  Sample non-empty labels from {split}:")
     for lbl in non_empty[:n]:
         print(f"     {lbl.name}:")
