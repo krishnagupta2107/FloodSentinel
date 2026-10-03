@@ -1,110 +1,122 @@
-# Flood Sentinel - Storm Drain Blockage Detection
+# FloodSentinel 🌊
 
-An AI-powered system that uses **YOLOv8 object detection** to identify sewage blockages and defects in storm drain CCTV footage, along with an upcoming **LSTM/XGBoost** model for overflow-risk prediction.
+![CI](https://github.com/krishnagupta2107/FloodSentinel/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Model](https://img.shields.io/badge/model-YOLOv8m-orange)
 
----
+**AI-powered storm drain blockage detection and flash-flood early warning.**  
+Detects blockages in CCTV drain footage, estimates occlusion severity, and feeds a risk engine to prioritise maintenance before floods start.
 
-## 🌍 Project Overview
-
-Dense urban centers frequently experience sudden, severe flash flooding during heavy monsoon rains, often caused by unobserved trash and debris blockages in underground storm drainage networks. Current municipal drainage inspection is largely manual and reactive.
-
-**Flood Sentinel** is an AI-powered urban drainage blockage detection and flash-flood early warning platform.
-
-### 🚀 Key Modules (Full Pipeline)
-1. **Debris & Blockage Detection (Computer Vision)**
-   - Utilizes a fine-tuned **YOLOv8** model to process street-level or CCTV imagery of catch basins.
-   - Detects the presence of sewage blockages and defects, outputting bounding boxes.
-   
-2. **Overflow-Risk Prediction (Time-Series & Sensors)**
-   - **(Upcoming)** A predictive machine learning model utilizing **LSTM** (Long Short-Term Memory) and **XGBoost** to estimate overflow risk based on sensor telemetry and rainfall data.
-
-3. **Map-Based Alert Dashboard**
-   - **(Planned)** A frontend interface to visualize monitored catch basins on an interactive map.
+> B.Tech CSE (AIML) Mini-Project — GLA University, Mathura | Team 166  
+> Mentor: Dr. Anuja Bhargava
 
 ---
 
-## 🧠 Detection Model Specs
+## What It Does
 
-| Property | Detail |
-|----------|--------|
-| **Task** | Object Detection (Defects / Sewage blockage) |
-| **Model** | YOLOv8 Nano (`yolov8n.pt`) |
-| **Framework** | Ultralytics YOLOv8 |
-| **Dataset** | Storm Drain CCTV footage (Roboflow annotated, 999 images) |
-| **GPU** | NVIDIA GeForce RTX 3050 6GB |
+| Stage | What happens |
+|-------|-------------|
+| 📷 **Detect** | YOLOv8m identifies drainage blockages from CCTV images |
+| 📐 **Estimate** | Occlusion % of the drain grate is calculated from detected bounding boxes |
+| 📈 **Predict** | LSTM / XGBoost estimates overflow risk from rainfall + water-level time-series |
+| 🗺️ **Alert** | Risk-ranked sites are displayed on an interactive map dashboard |
 
 ---
 
-## Model Performance 
+## Architecture
 
-### Vision Model (`flood_sentinels_v3` - 50 epochs)
+```
+CCTV Image ──► YOLOv8m ──► Occlusion Estimator ──┐
+                                                   ▼
+Rainfall + Water Level ──► LSTM / XGBoost ──► Risk Scorer ──► Map Dashboard
+```
+
+**Detected Classes:** `Defects` · `Sewage blockage`
+
+---
+
+## Results
+
+### YOLOv8m Optimized Model (50 epochs, 999 images)
 
 | Metric | Score |
 |--------|-------|
-| mAP@0.5 (final) | 0.689 (best 0.705, ep. 46) |
-| mAP@0.5:0.95 (final) | 0.430 |
-
-*(Note: Per-class metrics for Defects vs. Sewage blockage are available in the evaluation run results.)*
+| mAP@0.5 | 0.686 |
+| mAP@0.5:0.95 | 0.403 |
 
 ---
 
-## Limitations & Data Provenance
-
-- **Vision Data:** The dataset consists of 999 CCTV images (703 train, 198 valid, 98 test). Data is sourced from Roboflow under CC BY 4.0. Due to potential frame extraction from video, there may be data leakage across splits.
-
----
-
-## Setup
-
-### Requirements
-- Python 3.10+
-- CUDA-capable GPU (tested on RTX 3050)
-- PyTorch with CUDA support
-
-### Installation
+## Quickstart
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/krishnagupta2107/FloodSentinel.git
 cd FloodSentinel
-
-# 2. Create virtual environment
-python -m venv venv
-.\venv\Scripts\activate        # Windows
-# source venv/bin/activate     # Linux/Mac
-
-# 3. Install requirements
+python -m venv venv && .\venv\Scripts\activate
 pip install -r requirements.txt
-pip install -r requirements-dev.txt
+```
+
+### Run inference on an image
+```bash
+python src/floodsentinel/estimate_occlusion.py "path/to/drain.jpg"
+```
+
+### Train Model
+```bash
+python src/floodsentinel/train.py --size m --epochs 50
 ```
 
 ---
 
-## Usage
+## Tech Stack
 
-### 1. Prepare Dataset Labels (one-time)
-```bash
-python src/floodsentinel/coco_to_yolo.py
+| Layer | Technology |
+|-------|-----------|
+| Computer Vision | PyTorch · YOLOv8 · OpenCV |
+| Prediction | LSTM (PyTorch) · XGBoost |
+| Backend | FastAPI |
+| Frontend | React.js · Leaflet.js |
+| Database | PostgreSQL / PostGIS |
+
+---
+
+## Roadmap
+
+- [x] YOLOv8 baseline (Nano) — mAP 0.689
+- [x] Occlusion % estimation
+- [x] YOLOv8m optimized model
+- [ ] LSTM / XGBoost overflow-risk model
+- [ ] FastAPI backend
+- [ ] React + Leaflet dashboard
+- [ ] End-to-end pipeline demo
+
+---
+
+## Project Structure
+
+```
+FloodSentinel/
+├── src/floodsentinel/
+│   ├── estimate_occlusion.py   # Occlusion % from YOLO detections
+│   ├── train.py                # YOLOv8 training script (GPU, augmentations)
+│   ├── batch_inference.py      # Run model on full test set
+│   └── plot_results.py         # Visualise detections
+├── Yolo Dataset/               # Train/valid/test images + labels
+├── configs/                    # Training config YAML
+├── tests/                      # Unit tests (pytest)
+└── .github/workflows/ci.yml    # Lint CI (ruff + black)
 ```
 
-### 2. Train the Model (Config-based)
-```bash
-# Use train.py once implemented, or use the YOLO CLI:
-yolo detect train data="Yolo Dataset/data.yaml" model=yolov8n.pt epochs=50 imgsz=640 batch=16 device=0 project=runs/detect name=flood_sentinels_v3 patience=15
-```
+---
 
-### 3. Estimate Blockage Occlusion
-```bash
-# On a single image
-python src/floodsentinel/estimate_occlusion.py "path/to/image.jpg"
+## References
 
-# Batch test on all test images
-python src/floodsentinel/batch_inference.py
-```
+1. Jocher, G. et al. (2023). *YOLO by Ultralytics*. https://github.com/ultralytics/ultralytics
+2. *Storm Drain Model Dataset* — Roboflow, CC BY 4.0. https://universe.roboflow.com/cv-revvg/storm-drain-model-cjhye
+3. *Rainfall in India* — Kaggle. https://www.kaggle.com/datasets/rajanand/rainfall-in-india
 
 ---
 
 ## License
 
-Code is licensed under the MIT License.
-Dataset is licensed under CC BY 4.0 (Roboflow).
+Code: [MIT](LICENSE) · Dataset: CC BY 4.0 (Roboflow)

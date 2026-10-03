@@ -1,4 +1,4 @@
-model: yolov8n.pt
+model: yolov8m.pt
 data: data.yaml
 epochs: 50
 imgsz: 640
