@@ -1,8 +1,6 @@
-﻿path: c:/Users/Lenovo/OneDrive/Desktop/Flood Sentinals/Yolo Dataset
-
-train: train/images
-val: valid/images
-test: test/images
+train: ../Yolo Dataset/train/images
+val: ../Yolo Dataset/valid/images
+test: ../Yolo Dataset/test/images
 
 nc: 2
 names: [Defects, Sewage blockage]
