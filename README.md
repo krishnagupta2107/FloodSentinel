@@ -46,6 +46,24 @@ Dense urban centers frequently experience sudden, severe flash flooding during h
 
 *(Note: Per-class metrics for Defects vs. Sewage blockage are available in the evaluation run results.)*
 
+### Model 3: Rainfall Forecasting
+
+The rainfall forecasting component utilizes **XGBoost** and **LSTM** architectures to predict next-month rainfall based on a 12-month historical rainfall lookback window evaluated on a chronological train/test split.
+
+> **Note:** The current implementation represents the rainfall forecasting component and should not be described as the complete rainfall + water-level overflow-risk system in the absence of real-time water-level telemetry sensors.
+
+#### Evaluation Results (Chronological Test Set)
+
+| Model | MAE (mm) | RMSE (mm) | R² |
+|---|---|---|---|
+| **XGBoost** | **43.7539** | **74.5815** | **0.8036** |
+| **LSTM** | 49.1260 | 79.7615 | 0.7753 |
+
+*XGBoost performed better on the current test set across MAE, RMSE, and R².*
+
+- **Prediction Module:** `src/floodsentinel/models/rainfall_predictor.py`
+- **Evaluation Module:** `src/floodsentinel/models/evaluate_rainfall.py`
+
 ---
 
 ## Limitations & Data Provenance
@@ -100,6 +118,11 @@ python src/floodsentinel/estimate_occlusion.py "path/to/image.jpg"
 
 # Batch test on all test images
 python src/floodsentinel/batch_inference.py
+```
+
+### 4. Run Rainfall Forecasting Evaluation
+```bash
+python3 -m src.floodsentinel.models.evaluate_rainfall
 ```
 
 ---
