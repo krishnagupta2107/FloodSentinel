@@ -54,12 +54,13 @@ The rainfall forecasting component utilizes **XGBoost** and **LSTM** architectur
 
 #### Evaluation Results (Chronological Test Set)
 
-| Model | MAE (mm) | RMSE (mm) | R² |
+| Model | MAE (mm) | RMSE (mm) | R² (Coeff. of Determination) |
 |---|---|---|---|
-| **XGBoost** | **43.7539** | **74.5815** | **0.8036** |
-| **LSTM** | 49.1260 | 79.7615 | 0.7753 |
+| **XGBoost** | 43.6052 | 73.9722 | 0.8068 |
+| **LSTM (Subdivision-Aware)** | 43.3720 | 70.4140 | 0.8249 |
+| **XGBoost + LSTM Average** | **42.4741** | **70.4339** | **0.8248** |
 
-*XGBoost performed better on the current test set across MAE, RMSE, and R².*
+*Both individual models and the ensemble exceed R² > 0.80 on the chronological test split.*
 
 - **Prediction Module:** `src/floodsentinel/models/rainfall_predictor.py`
 - **Evaluation Module:** `src/floodsentinel/models/evaluate_rainfall.py`
