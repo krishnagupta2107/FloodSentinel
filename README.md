@@ -183,9 +183,134 @@ where active weights dynamically re-normalize to $\sum w_i = 1.0$.
 | **LOW** | $0.00 - 0.29$ | Routine scheduled monitoring |
 | **MEDIUM** | $0.30 - 0.59$ | Heightened telemetry inspection |
 | **HIGH** | $0.60 - 0.79$ | Pre-emptive maintenance dispatch |
-| **CRITICAL** | $0.80 - 1.00$ | Immediate emergency crew deployment |
+---
 
-> **Important Distinction:** The meteorological model forecasts rainfall volume in millimeters, whereas the underground sensor XGBoost model predicts short-term overflow onset probability.
+## 🌐 REST API Backend
+
+FloodSentinel includes a production-oriented **FastAPI** backend that exposes real-time inference endpoints for meteorological rainfall forecasting, sensor-based overflow prediction, and multi-modal risk ranking.
+
+### Architecture
+
+```text
+FastAPI Server (api/main.py)
+├── /api/health          → Service status & model readiness
+├── /api/risk/predict    → Meteorological rainfall forecast (XGBoost + LSTM)
+├── /api/risk/overflow   → Sensor telemetry overflow probability (XGBoost 15m/30m)
+├── /api/alerts/rank     → Multi-modal site prioritization & risk scoring
+└── /api/demo/risk       → Synthetic multi-catchment demonstration output
+```
+
+### Running the API
+
+```bash
+# Start FastAPI backend with hot-reload
+uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Interactive OpenAPI Documentation is available at:
+- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+### Environment Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| `API_HOST` | `0.0.0.0` | API bind address |
+| `API_PORT` | `8000` | API port |
+| `CORS_ORIGINS` | `http://localhost:3000,http://localhost:5173,...` | Allowed CORS origins for frontend client |
+| `ENVIRONMENT` | `development` | Application runtime environment |
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Health status and ML model readiness |
+| `POST` | `/api/risk/predict` | Rainfall forecasting (12-month sequence → mm) |
+| `POST` | `/api/risk/overflow` | Underground sensor overflow onset probabilities |
+| `POST` | `/api/alerts/rank` | Multi-criteria drainage site ranking & risk scoring |
+| `GET` | `/api/demo/risk` | Demonstration risk ranking over sample CCTV grates |
+
+---
+
+### Example Requests & Responses
+
+#### 1. Rainfall Forecasting (`POST /api/risk/predict`)
+
+**Request:**
+```bash
+curl -X POST "http://localhost:8000/api/risk/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "subdivision": "ANDAMAN & NICOBAR ISLANDS",
+       "target_month": 1,
+       "rainfall_lags": [10.0, 20.0, 15.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0, 110.0]
+     }'
+```
+
+**Response (HTTP 200):**
+```json
+{
+  "subdivision": "ANDAMAN & NICOBAR ISLANDS",
+  "target_month": 1,
+  "xgboost_prediction_mm": 77.87,
+  "lstm_prediction_mm": 75.27,
+  "average_prediction_mm": 76.57
+}
+```
+
+#### 2. Overflow Prediction (`POST /api/risk/overflow`)
+
+**Request:**
+```bash
+curl -X POST "http://localhost:8000/api/risk/overflow" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "water_level_cm": 85.0,
+       "rise_rate_cm_per_15min": 6.0,
+       "rainfall_mm_per_hr": 25.0,
+       "cumulative_rain_6hr_mm": 50.0,
+       "cumulative_rain_24hr_mm": 100.0,
+       "pipe_diameter_mm": 600.0,
+       "pipe_material": "Concrete",
+       "pipe_slope": 0.02,
+       "elevation_m": 10.0,
+       "month": 7
+     }'
+```
+
+**Response (HTTP 200):**
+```json
+{
+  "overflow_probability_15min": 0.2467,
+  "overflow_probability_30min": 0.9291,
+  "overflow_score": 0.4855
+}
+```
+
+#### 3. Site Prioritization & Ranking (`POST /api/alerts/rank`)
+
+**Request:**
+```json
+{
+  "sites": [
+    {
+      "site_id": "CATCH_BASIN_042",
+      "occlusion_percentage": 54.8,
+      "overflow_probability_15min": 0.82,
+      "overflow_probability_30min": 0.91,
+      "rainfall_prediction_mm": 145.0,
+      "vulnerability_score": null
+    }
+  ]
+}
+```
+
+---
+
+## ⚠️ Data Provenance & Production Limitations
+
+- **Real Inference Models:** All ML inference (YOLO blockage detection, XGBoost overflow prediction, and XGBoost/LSTM rainfall forecasting) executes real, pre-trained model weights.
+- **Decoupled Architecture:** The open-source CCTV imagery and sensor datasets originate from distinct public collections. The API does not hardcode false relationships; instead, it provides a clean data contract (`SiteAlertInput`) allowing municipal operators to bind live IoT sensor telemetry and CCTV RTSP streams per catchment site in production.
 
 ---
 
