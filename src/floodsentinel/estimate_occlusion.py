@@ -1,6 +1,13 @@
-import sys
-from ultralytics import YOLO
-import cv2
+try:
+    from ultralytics import YOLO
+except ImportError:
+    YOLO = None
+
+try:
+    import cv2
+except ImportError:
+    cv2 = None
+
 import numpy as np
 from pathlib import Path
 
@@ -15,6 +22,8 @@ def calculate_occlusion(image_path, model=None, model_path=None):
     if model is None:
         if model_path is None:
             raise ValueError("Either model or model_path must be provided")
+        if YOLO is None:
+            raise ImportError("ultralytics package is required to load a YOLO model from file")
         model = YOLO(model_path)
 
     results = model(image_path, conf=0.25, verbose=False)
@@ -56,7 +65,10 @@ def calculate_occlusion(image_path, model=None, model_path=None):
             class_id = int(box.cls[0])
             if model.names[class_id] == "Sewage blockage":
                 x1, y1, x2, y2 = map(int, box.xyxy[0])
-                cv2.rectangle(mask, (x1, y1), (x2, y2), 1, -1)
+                if cv2 is not None:
+                    cv2.rectangle(mask, (x1, y1), (x2, y2), 1, -1)
+                else:
+                    mask[y1:y2, x1:x2] = 1
                 has_blockage = True
 
         if not has_blockage:

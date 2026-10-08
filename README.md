@@ -126,6 +126,67 @@ python src/floodsentinel/batch_inference.py
 python3 -m src.floodsentinel.models.evaluate_rainfall
 ```
 
+### 5. Run Multi-Modal Risk Fusion Demo
+```bash
+python scripts/demo_risk_fusion.py
+```
+
+---
+
+## ⚡ Risk Fusion & Prioritisation
+
+The **Risk Fusion & Prioritisation Module** synthesizes multimodal intelligence across visual inspections, sensor telemetry, and meteorological forecasts into a unified, actionable **Risk Score (0.0 to 1.0)** for ranking municipal catch basins.
+
+### Pipeline Architecture
+
+```text
+CCTV Inspection / Grate Image
+       ↓
+YOLOv8 Detection & Occlusion Severity (0.0 - 1.0)
+       ↓
+Underground Sensor Telemetry → XGBoost 15m/30m Overflow Probability (0.0 - 1.0)
+       ↓
+Rainfall Time-Series → LSTM/XGBoost Forecast (mm) → Empirical Percentile Normalization (0.0 - 1.0)
+       ↓
+Optional Site Vulnerability (0.0 - 1.0)
+       ↓
+Unified Multi-Modal Risk Score (0.0 - 1.0)
+       ↓
+Priority-Ranked Drainage Sites (Rank #1 = Critical)
+```
+
+### Risk Score Formulation
+
+The unified risk score is computed as a weighted linear combination of calibrated sub-scores:
+
+$$\text{Risk Score} = w_{\text{blockage}} \cdot S_{\text{blockage}} + w_{\text{overflow}} \cdot S_{\text{overflow}} + w_{\text{rainfall}} \cdot S_{\text{rainfall}} + w_{\text{vulnerability}} \cdot S_{\text{vulnerability}}$$
+
+where active weights dynamically re-normalize to $\sum w_i = 1.0$.
+
+#### Configurable Components:
+1. **Blockage Score ($S_{\text{blockage}}$):** Normalized CCTV grate visual occlusion:
+   $$S_{\text{blockage}} = \text{clamp}\left(\frac{\text{occlusion\_percentage}}{100.0}, 0.0, 1.0\right)$$
+2. **Overflow Score ($S_{\text{overflow}}$):** Weighted combination of underground sensor overflow probabilities:
+   $$S_{\text{overflow}} = 0.65 \times p_{\text{15min}} + 0.35 \times p_{\text{30min}}$$
+3. **Rainfall Score ($S_{\text{rainfall}}$):** Statistical percentile rank derived from the empirical historical rainfall distribution ($N=49,080$ records).
+4. **Vulnerability Score ($S_{\text{vulnerability}}$):** Optional demographic/infrastructure vulnerability index (marked unavailable if not present).
+
+#### Default Weight Distribution:
+- $w_{\text{blockage}} = 0.35$
+- $w_{\text{overflow}} = 0.45$
+- $w_{\text{rainfall}} = 0.20$
+- $w_{\text{vulnerability}} = 0.00$ *(optional)*
+
+#### Risk Classification Thresholds:
+| Risk Level | Score Range | Operational Response |
+|---|---|---|
+| **LOW** | $0.00 - 0.29$ | Routine scheduled monitoring |
+| **MEDIUM** | $0.30 - 0.59$ | Heightened telemetry inspection |
+| **HIGH** | $0.60 - 0.79$ | Pre-emptive maintenance dispatch |
+| **CRITICAL** | $0.80 - 1.00$ | Immediate emergency crew deployment |
+
+> **Important Distinction:** The meteorological model forecasts rainfall volume in millimeters, whereas the underground sensor XGBoost model predicts short-term overflow onset probability.
+
 ---
 
 ## License
