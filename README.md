@@ -307,10 +307,81 @@ curl -X POST "http://localhost:8000/api/risk/overflow" \
 
 ---
 
-## ⚠️ Data Provenance & Production Limitations
+## 🖥️ Interactive Frontend Dashboard
 
-- **Real Inference Models:** All ML inference (YOLO blockage detection, XGBoost overflow prediction, and XGBoost/LSTM rainfall forecasting) executes real, pre-trained model weights.
-- **Decoupled Architecture:** The open-source CCTV imagery and sensor datasets originate from distinct public collections. The API does not hardcode false relationships; instead, it provides a clean data contract (`SiteAlertInput`) allowing municipal operators to bind live IoT sensor telemetry and CCTV RTSP streams per catchment site in production.
+FloodSentinel includes a command-center React dashboard providing municipal operators with real-time multi-modal risk intelligence, geospatial visualization, and priority dispatch queues.
+
+### 🏗️ Architecture
+
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── charts/       # RiskBarChart, RiskRadar
+│   │   ├── dashboard/    # SiteDetailModal
+│   │   ├── layout/       # Sidebar (responsive), TopBar (model health pills)
+│   │   ├── map/          # FloodMap (interactive Leaflet with risk markers)
+│   │   └── ui/           # ScoreGauge, RiskTable, DemoBanner
+│   ├── hooks/            # useApiHealth, useDemoRisk
+│   ├── pages/            # OverviewPage, SitesPage, AlertsPage, FusionPage,
+│   │                     # RainfallPage, OverflowPage, DemoPage, AboutPage
+│   ├── services/         # Centralized API service with TypeScript interfaces
+│   ├── types/            # API schemas and UI contracts
+│   ├── utils/            # Risk color palettes, badges, formatting
+│   ├── App.tsx           # Route layout with command center header
+│   └── main.tsx          # React application root
+├── package.json
+└── vite.config.ts        # Vite build & test configuration with backend proxy
+```
+
+### ⚙️ Setup & Execution
+
+#### Terminal 1 — Start the FastAPI Backend:
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Launch API server
+uvicorn api.main:app --reload --port 8000
+```
+
+#### Terminal 2 — Start the React Dashboard:
+```bash
+# Navigate to frontend
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start Vite development server
+npm run dev
+```
+
+Dashboard will be available at `http://localhost:5173`.
+
+### 🧪 Frontend Testing & Build
+
+```bash
+cd frontend
+
+# Run unit tests (10 tests covering API service, risk formatting, map safety, and UI filters)
+npm test
+
+# Build production bundle
+npm run build
+```
+
+### 🔧 Configuration & Environment Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `VITE_API_BASE_URL` | `""` (proxied to `http://localhost:8000` via Vite) | Backend API endpoint URL |
+
+### ⚠️ Geospatial Map & Demo Mode Notes
+
+- **Synthetic Bindings:** The `GET /api/demo/risk` endpoint feeds 10 synthetic scenario catchments (`SITE_CATCH_001` through `SITE_CATCH_010`) to safely illustrate multi-modal fusion.
+- **Simulated Map Coordinates:** Coordinates rendered in the interactive Leaflet map are simulated visualization coordinates for testing. Real municipal GIS shapefiles or live municipal GPS coordinates are not hardcoded in the codebase.
+- **Live Readiness:** Production deployments bind live sensor telemetry and CCTV frames to the `/api/alerts/rank` endpoint using genuine catchment identifiers.
 
 ---
 
