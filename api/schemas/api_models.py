@@ -117,6 +117,7 @@ class SiteRankOutput(BaseModel):
     rank: int = Field(..., description="Priority rank (1 = highest urgency)")
     site_id: str = Field(..., description="Unique site identifier")
     risk_score: float = Field(..., ge=0.0, le=1.0, description="Unified composite risk score (0.0 to 1.0)")
+    composite_risk_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="Alias for unified risk score")
     risk_level: str = Field(..., description="Risk category: LOW, MEDIUM, HIGH, CRITICAL")
     image_name: Optional[str] = Field(None, description="Associated CCTV image name")
     occlusion_percentage: Optional[float] = Field(None, description="Raw grate blockage percentage")
@@ -132,6 +133,10 @@ class SiteRankOutput(BaseModel):
     explanation: str = Field(..., description="Automated natural-language summary")
     factor_breakdown: Dict[str, Any] = Field(default_factory=dict, description="Detailed score and weight contributions")
 
+    def model_post_init(self, __context: Any) -> None:
+        if self.composite_risk_score is None:
+            self.composite_risk_score = self.risk_score
+
 
 class RankAlertsResponse(BaseModel):
     total_sites: int = Field(..., description="Total number of evaluated drainage sites")
@@ -141,5 +146,10 @@ class RankAlertsResponse(BaseModel):
 class DemoRiskResponse(BaseModel):
     is_demo_data: bool = Field(True, description="Flag indicating data is synthetic demonstration data")
     notice: str = Field(..., description="Data provenance clarification notice")
+    demo_warning: Optional[str] = Field(None, description="Alias for data provenance notice")
     total_sites: int = Field(..., description="Total demo sites evaluated")
     ranked_sites: List[SiteRankOutput] = Field(..., description="Ranked demo sites")
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.demo_warning is None:
+            self.demo_warning = self.notice

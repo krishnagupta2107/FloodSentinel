@@ -44,7 +44,7 @@ export function OverviewPage({ status, health, onRetry }: OverviewProps) {
   const criticalOrHigh = critical + high;
 
   // Aggregate metrics
-  const maxScore = sites.length > 0 ? Math.max(...sites.map((s) => s.composite_risk_score)) : 0;
+  const maxScore = sites.length > 0 ? Math.max(...sites.map((s) => s.composite_risk_score ?? s.risk_score ?? 0)) : 0;
   const topSite = sites.length > 0 ? sites[0] : null;
 
   // Rainfall forecast average or top site forecast

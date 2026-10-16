@@ -164,15 +164,38 @@ class RiskFusionEngine:
             p15 = p15 if p15 is not None else tel_p15
             p30 = p30 if p30 is not None else tel_p30
 
+        # Determine active available modalities
+        has_blockage = site_input.occlusion_percentage is not None
+        has_overflow = p15 is not None or p30 is not None
+        has_rainfall = site_input.rainfall_prediction_mm is not None
+        vulnerability_score = self.normalize_vulnerability(site_input.vulnerability_score)
+        has_vulnerability = vulnerability_score is not None
+
+        available_modalities = set()
+        if has_blockage:
+            available_modalities.add("blockage")
+        if has_overflow:
+            available_modalities.add("overflow")
+        if has_rainfall:
+            available_modalities.add("rainfall")
+        if has_vulnerability and self.weights.vulnerability_weight > 0.0:
+            available_modalities.add("vulnerability")
+
+        if not available_modalities:
+            raise ValueError(
+                f"Site '{site_input.site_id}' has no available sensor, visual, or meteorological data."
+            )
+
         # Compute individual scores
         blockage_score = self.normalize_blockage(site_input.occlusion_percentage)
         overflow_score = self.compute_overflow_score(p15, p30)
         rainfall_score = self.compute_rainfall_score(site_input.rainfall_prediction_mm)
-        vulnerability_score = self.normalize_vulnerability(site_input.vulnerability_score)
-        has_vulnerability = vulnerability_score is not None
 
-        # Normalized active weights
-        active_weights = self.weights.normalized_weights(has_vulnerability=has_vulnerability)
+        # Normalized active weights (missing modalities excluded and remaining renormalised)
+        active_weights = self.weights.normalized_weights(
+            has_vulnerability=has_vulnerability,
+            available_modalities=available_modalities,
+        )
 
         scores = {
             "blockage": blockage_score,

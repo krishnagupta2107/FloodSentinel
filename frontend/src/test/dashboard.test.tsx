@@ -12,12 +12,15 @@ const mockSites: SiteRankOutput[] = [
   {
     rank: 1,
     site_id: 'SITE_CATCH_001',
+    risk_score: 0.88,
     composite_risk_score: 0.88,
     risk_level: 'CRITICAL',
     blockage_score: 0.92,
     overflow_score: 0.85,
     rainfall_score: 0.75,
     vulnerability_score: 0.0,
+    dominant_risk_factor: 'blockage',
+    explanation: 'Severe obstruction requiring pump clearing.',
     is_demo_data: true,
     components: { blockage: 0.92, overflow: 0.85, rainfall: 0.75 },
     metadata: { explanation: 'Severe obstruction requiring pump clearing.' },
@@ -25,12 +28,15 @@ const mockSites: SiteRankOutput[] = [
   {
     rank: 2,
     site_id: 'SITE_CATCH_002',
+    risk_score: 0.65,
     composite_risk_score: 0.65,
     risk_level: 'HIGH',
     blockage_score: 0.45,
     overflow_score: 0.72,
     rainfall_score: 0.68,
     vulnerability_score: 0.0,
+    dominant_risk_factor: 'overflow',
+    explanation: 'High hydrodynamic surcharge in trunk line.',
     is_demo_data: true,
     components: { blockage: 0.45, overflow: 0.72, rainfall: 0.68 },
     metadata: { explanation: 'High hydrodynamic surcharge in trunk line.' },
@@ -38,24 +44,28 @@ const mockSites: SiteRankOutput[] = [
   {
     rank: 3,
     site_id: 'SITE_CATCH_003',
+    risk_score: 0.32,
     composite_risk_score: 0.32,
     risk_level: 'LOW',
     blockage_score: 0.15,
     overflow_score: 0.22,
     rainfall_score: 0.30,
     vulnerability_score: 0.0,
+    dominant_risk_factor: 'rainfall',
+    explanation: 'Hydraulic conditions within standard limits.',
     is_demo_data: true,
     components: { blockage: 0.15, overflow: 0.22, rainfall: 0.30 },
     metadata: { explanation: 'Hydraulic conditions within standard limits.' },
   },
 ];
 
+
 describe('Risk Utilities', () => {
   it('correctly maps risk colors and badges', () => {
-    expect(riskColor('CRITICAL')).toBe('#ef4444');
-    expect(riskColor('HIGH')).toBe('#f97316');
-    expect(riskColor('MEDIUM')).toBe('#eab308');
-    expect(riskColor('LOW')).toBe('#22c55e');
+    expect(riskColor('CRITICAL')).toBe('#dc2626');
+    expect(riskColor('HIGH')).toBe('#ea580c');
+    expect(riskColor('MEDIUM')).toBe('#d97706');
+    expect(riskColor('LOW')).toBe('#16a34a');
 
     expect(riskBadgeClass('CRITICAL')).toBe('badge-critical');
     expect(scorePercent(0.882)).toBe('88.2%');
@@ -107,12 +117,15 @@ describe('FloodMap Component', () => {
       {
         rank: 1,
         site_id: 'UNKNOWN_SITE_999',
+        risk_score: 0.75,
         composite_risk_score: 0.75,
         risk_level: 'HIGH',
         blockage_score: 0.5,
         overflow_score: 0.6,
         rainfall_score: 0.7,
         vulnerability_score: 0.0,
+        dominant_risk_factor: 'overflow',
+        explanation: 'Unknown site — no pre-configured coordinates.',
         is_demo_data: true,
         components: {},
         metadata: {},

@@ -73,7 +73,7 @@ export function FusionPage() {
                 <RiskRadar site={topSite} />
                 <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 8 }}>
                   <Metric label="Rank" value="#1" />
-                  <Metric label="Score" value={`${(topSite.composite_risk_score * 100).toFixed(1)}%`} color={riskColor(topSite.risk_level as any)} />
+                  <Metric label="Score" value={`${((topSite.composite_risk_score ?? topSite.risk_score ?? 0) * 100).toFixed(1)}%`} color={riskColor(topSite.risk_level as any)} />
                   <Metric label="Level" value={topSite.risk_level} color={riskColor(topSite.risk_level as any)} />
                 </div>
               </div>

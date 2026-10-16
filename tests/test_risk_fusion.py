@@ -217,3 +217,65 @@ class TestModelArtifactsIntegration:
         res = engine.evaluate_site(site_data)
         assert res.overflow_score > 0.0
         assert 0.0 <= res.risk_score <= 1.0
+
+
+class TestMissingModalitiesAndRegression:
+    def test_only_blockage_provided_renormalizes_to_one(self):
+        engine = RiskFusionEngine()
+        site_data = {
+            "site_id": "BLOCKAGE_ONLY",
+            "occlusion_percentage": 60.0,
+            "overflow_probability_15min": None,
+            "overflow_probability_30min": None,
+            "rainfall_prediction_mm": None,
+        }
+        res = engine.evaluate_site(site_data)
+        assert res.risk_score == pytest.approx(0.60, rel=1e-4)
+        assert res.dominant_risk_factor == "CCTV Grate Blockage Severity"
+        assert "blockage" in res.factor_breakdown
+        assert "overflow" not in res.factor_breakdown
+        assert "rainfall" not in res.factor_breakdown
+        assert res.factor_breakdown["blockage"]["weight"] == 1.0
+
+    def test_blockage_and_rainfall_renormalizes_correctly(self):
+        engine = RiskFusionEngine()
+        # Default raw weights: blockage=0.35, rainfall=0.20 -> sum=0.55
+        site_data = {
+            "site_id": "PARTIAL_MODALITIES",
+            "occlusion_percentage": 80.0,  # 0.80
+            "rainfall_prediction_mm": 0.0,  # 0.00
+            "overflow_probability_15min": None,
+        }
+        res = engine.evaluate_site(site_data)
+        expected_weight_blockage = 0.35 / (0.35 + 0.20)
+        expected_score = expected_weight_blockage * 0.80
+        assert res.risk_score == pytest.approx(expected_score, rel=1e-4)
+        assert "overflow" not in res.factor_breakdown
+
+    def test_empty_modalities_raises_error(self):
+        engine = RiskFusionEngine()
+        site_data = {
+            "site_id": "EMPTY_SITE",
+            "occlusion_percentage": None,
+            "overflow_probability_15min": None,
+            "overflow_probability_30min": None,
+            "rainfall_prediction_mm": None,
+            "vulnerability_score": None,
+        }
+        with pytest.raises(ValueError, match="no available sensor, visual, or meteorological data"):
+            engine.evaluate_site(site_data)
+
+    def test_risk_scores_always_finite_in_range(self):
+        engine = RiskFusionEngine()
+        for occ in [0.0, 50.0, 100.0]:
+            for p15 in [0.0, 0.5, 1.0]:
+                for rain in [0.0, 100.0, 1000.0]:
+                    res = engine.evaluate_site({
+                        "site_id": "FINITE_TEST",
+                        "occlusion_percentage": occ,
+                        "overflow_probability_15min": p15,
+                        "rainfall_prediction_mm": rain,
+                    })
+                    assert np.isfinite(res.risk_score)
+                    assert 0.0 <= res.risk_score <= 1.0
+

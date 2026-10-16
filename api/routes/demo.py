@@ -93,6 +93,7 @@ def get_demo_risk() -> DemoRiskResponse:
             rank=r.rank,
             site_id=r.site_id,
             risk_score=r.risk_score,
+            composite_risk_score=r.risk_score,
             risk_level=r.risk_level.value,
             image_name=r.image_name,
             occlusion_percentage=r.raw_inputs.get("occlusion_percentage"),
@@ -111,13 +112,16 @@ def get_demo_risk() -> DemoRiskResponse:
         for r in ranked_results
     ]
 
+    notice_text = (
+        "DEMO DATA NOTICE: The underlying ML models (YOLO, XGBoost, LSTM) are real and fully trained. "
+        "However, the catch basin site IDs and sensor-to-camera bindings in this demonstration are synthetic scenarios. "
+        "Production usage requires mapping real IoT telemetry streams to specific municipal GIS sites."
+    )
+
     return DemoRiskResponse(
         is_demo_data=True,
-        notice=(
-            "DEMO DATA NOTICE: The underlying ML models (YOLO, XGBoost, LSTM) are real and fully trained. "
-            "However, the catch basin site IDs and sensor-to-camera bindings in this demonstration are synthetic scenarios. "
-            "Production usage requires mapping real IoT telemetry streams to specific municipal GIS sites."
-        ),
+        notice=notice_text,
+        demo_warning=notice_text,
         total_sites=len(outputs),
         ranked_sites=outputs,
     )

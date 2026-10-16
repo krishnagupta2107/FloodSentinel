@@ -122,6 +122,7 @@ def rank_alerts(request: RankAlertsRequest) -> RankAlertsResponse:
                 rank=r.rank,
                 site_id=r.site_id,
                 risk_score=r.risk_score,
+                composite_risk_score=r.risk_score,
                 risk_level=r.risk_level.value,
                 image_name=r.image_name,
                 occlusion_percentage=r.raw_inputs.get("occlusion_percentage"),

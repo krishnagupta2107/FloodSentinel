@@ -34,17 +34,21 @@ describe('FloodSentinel API Service', () => {
     const mockDemo: DemoRiskResponse = {
       total_sites: 2,
       is_demo_data: true,
+      notice: 'Synthetic simulation data — not real sensor readings.',
       demo_warning: 'Simulation demo data only',
       ranked_sites: [
         {
           rank: 1,
           site_id: 'SITE_CATCH_001',
+          risk_score: 0.88,
           composite_risk_score: 0.88,
           risk_level: 'CRITICAL',
           blockage_score: 0.9,
           overflow_score: 0.85,
           rainfall_score: 0.8,
           vulnerability_score: 0.0,
+          dominant_risk_factor: 'blockage',
+          explanation: 'Severe culvert blockage combined with rising water',
           is_demo_data: true,
           components: { blockage: 0.9, overflow: 0.85, rainfall: 0.8 },
           metadata: { explanation: 'Severe culvert blockage combined with rising water' },
@@ -52,18 +56,22 @@ describe('FloodSentinel API Service', () => {
         {
           rank: 2,
           site_id: 'SITE_CATCH_002',
+          risk_score: 0.45,
           composite_risk_score: 0.45,
           risk_level: 'MEDIUM',
           blockage_score: 0.3,
           overflow_score: 0.4,
           rainfall_score: 0.5,
           vulnerability_score: 0.0,
+          dominant_risk_factor: 'rainfall',
+          explanation: 'Moderate water rise under normal flow',
           is_demo_data: true,
           components: { blockage: 0.3, overflow: 0.4, rainfall: 0.5 },
           metadata: { explanation: 'Moderate water rise under normal flow' },
         },
       ],
     };
+
 
     vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
       ok: true,

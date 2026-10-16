@@ -58,31 +58,49 @@ export interface SiteAlertInput {
   metadata?: Record<string, unknown>;
 }
 
+export interface FactorBreakdownItem {
+  raw_score: number;
+  weight: number;
+  weighted_contribution: number;
+  percentage_share: number;
+}
+
 export interface SiteRankOutput {
   rank: number;
   site_id: string;
-  composite_risk_score: number;
+  risk_score: number;
+  composite_risk_score?: number;
   risk_level: string;
+  image_name?: string | null;
+  occlusion_percentage?: number | null;
   blockage_score: number;
+  overflow_probability_15min?: number | null;
+  overflow_probability_30min?: number | null;
   overflow_score: number;
+  rainfall_prediction_mm?: number | null;
   rainfall_score: number;
-  vulnerability_score: number;
-  is_demo_data: boolean;
-  components: Record<string, number>;
-  metadata: Record<string, unknown>;
+  vulnerability_score?: number | null;
+  vulnerability_available?: boolean;
+  dominant_risk_factor: string;
+  explanation: string;
+  factor_breakdown?: Record<string, FactorBreakdownItem>;
+  is_demo_data?: boolean;
+  components?: Record<string, number>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface RankAlertsResponse {
   ranked_sites: SiteRankOutput[];
   total_sites: number;
-  is_demo_data: boolean;
+  is_demo_data?: boolean;
 }
 
 export interface DemoRiskResponse {
   ranked_sites: SiteRankOutput[];
   total_sites: number;
   is_demo_data: boolean;
-  demo_warning: string;
+  notice: string;
+  demo_warning?: string;
 }
 
 // UI-specific types

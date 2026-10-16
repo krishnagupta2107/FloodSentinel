@@ -12,7 +12,7 @@ interface RiskBarChartProps {
 export function RiskBarChart({ sites }: RiskBarChartProps) {
   const data = sites.map(s => ({
     name: s.site_id.replace('SITE_CATCH_', '#'),
-    score: parseFloat((s.composite_risk_score * 100).toFixed(1)),
+    score: parseFloat(((s.composite_risk_score ?? s.risk_score ?? 0) * 100).toFixed(1)),
     level: s.risk_level,
   }));
 

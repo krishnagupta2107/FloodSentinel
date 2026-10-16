@@ -75,21 +75,34 @@ class FusionWeights:
                 f"Overflow sub-weights must sum to 1.0 (got {overflow_sub_sum})"
             )
 
-    def normalized_weights(self, has_vulnerability: bool = False) -> Dict[str, float]:
+    def normalized_weights(
+        self,
+        has_vulnerability: bool = False,
+        available_modalities: Optional[Any] = None,
+    ) -> Dict[str, float]:
         """
         Dynamically normalizes active weights so their sum is exactly 1.0.
+        Excludes missing modalities and renormalizes remaining active weights.
         """
-        raw_weights = {
+        candidates = {
             "blockage": self.blockage_weight,
             "overflow": self.overflow_weight,
             "rainfall": self.rainfall_weight,
         }
         if has_vulnerability and self.vulnerability_weight > 0.0:
-            raw_weights["vulnerability"] = self.vulnerability_weight
+            candidates["vulnerability"] = self.vulnerability_weight
+
+        if available_modalities is not None:
+            raw_weights = {
+                k: v for k, v in candidates.items()
+                if k in available_modalities and v > 0.0
+            }
+        else:
+            raw_weights = candidates
 
         total = sum(raw_weights.values())
         if total <= 0:
-            raise ValueError("Sum of active weights must be positive.")
+            raise ValueError("Sum of active weights must be positive. No valid modalities available.")
 
         return {k: v / total for k, v in raw_weights.items()}
 
@@ -147,6 +160,7 @@ class SiteRiskResult:
             "rank": self.rank,
             "site_id": self.site_id,
             "risk_score": round(self.risk_score, 4),
+            "composite_risk_score": round(self.risk_score, 4),
             "risk_level": self.risk_level.value,
             "image_name": self.image_name,
             "blockage_score": round(self.blockage_score, 4),

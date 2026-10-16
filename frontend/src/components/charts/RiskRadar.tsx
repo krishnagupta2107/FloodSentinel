@@ -14,7 +14,7 @@ export function RiskRadar({ site }: RadarProps) {
     { axis: 'Blockage', value: +(site.blockage_score * 100).toFixed(1) },
     { axis: 'Overflow', value: +(site.overflow_score * 100).toFixed(1) },
     { axis: 'Rainfall', value: +(site.rainfall_score * 100).toFixed(1) },
-    { axis: 'Composite', value: +(site.composite_risk_score * 100).toFixed(1) },
+    { axis: 'Composite', value: +((site.composite_risk_score ?? site.risk_score ?? 0) * 100).toFixed(1) },
   ];
   const color = riskColor(site.risk_level as any);
 
